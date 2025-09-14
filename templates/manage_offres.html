@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Gestion des Offres d'Emploi</h3>
+
+    <!-- Formulaire d'ajout -->
+    <form action="{{ url_for('add_offre') }}" method="POST" class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <input type="text" name="titre" class="form-control" placeholder="Titre de l'offre" required>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="description" class="form-control" placeholder="Description" required>
+            </div>
+            <div class="col-md-3">
+                <select name="profession_id" class="form-select" required>
+                    <option value="">-- Sélectionner une profession --</option>
+                    {% for profession in professions %}
+                    <option value="{{ profession.id }}">{{ profession.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Champ de recherche -->
+    <div class="mb-3">
+        <input type="text" id="recherche" class="form-control" placeholder="Rechercher une offre...">
+    </div>
+
+    <!-- Tableau des offres -->
+    <table class="table table-bordered table-striped" id="tableOffres">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Profession</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for offre in offres %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ offre.titre }}</td>
+                <td>{{ offre.description }}</td>
+                <td>{{ offre.profession }}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#editModal{{ offre.id }}">
+                        Modifier
+                    </button>
+                    <a href="{{ url_for('delete_offre', id=offre.id) }}" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Voulez-vous vraiment supprimer cette offre ?');">
+                        Supprimer
+                    </a>
+                </td>
+            </tr>
+
+            <!-- Modal de modification -->
+            <div class="modal fade" id="editModal{{ offre.id }}" tabindex="-1"
+                aria-labelledby="editModalLabel{{ offre.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form action="{{ url_for('update_offre', id=offre.id) }}" method="POST">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Modifier l'offre</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-2">
+                                    <input type="text" name="titre" class="form-control" value="{{ offre.titre }}"
+                                        required>
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" name="description" class="form-control"
+                                        value="{{ offre.description }}" required>
+                                </div>
+                                <div class="mb-2">
+                                    <select name="profession_id" class="form-select" required>
+                                        {% for profession in professions %}
+                                        <option value="{{ profession.id }}" {% if profession.nom==offre.profession
+                                            %}selected{% endif %}>
+                                            {{ profession.nom }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Script de recherche dynamique -->
+<script>
+    document.getElementById('recherche').addEventListener('input', function () {
+        const filtre = this.value.toLowerCase();
+        const lignes = document.querySelectorAll('#tableOffres tbody tr');
+        lignes.forEach(ligne => {
+            const texte = ligne.textContent.toLowerCase();
+            ligne.style.display = texte.includes(filtre) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

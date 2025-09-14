@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5>Étape 1 : Vérification de l'adresse e-mail</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('etudiant_inscription_email') }}" method="POST">
+                        <div class="form-group mb-3">
+                            <label for="email">Adresse e-mail</label>
+                            <input type="email" name="email" id="email" class="form-control"
+                                placeholder="ex: exemple@gmail.com" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Envoyer le code de vérification</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

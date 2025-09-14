@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Gestion des Professions</h3>
+
+    <!-- Formulaire d'ajout -->
+    <form action="{{ url_for('add_profession') }}" method="POST" enctype="multipart/form-data" class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="nom" class="form-control" placeholder="Nom de la profession" required>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="description" class="form-control" placeholder="Description" required>
+            </div>
+            <div class="col-md-3">
+                <input type="file" name="photo" class="form-control" accept="image/*" required>
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Champ de recherche -->
+    <div class="mb-3">
+        <input type="text" id="recherche" class="form-control" placeholder="Rechercher une profession...">
+    </div>
+
+    <!-- Tableau des professions -->
+    <table class="table table-bordered table-striped" id="tableProfessions">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Photo</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profession in professions %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ profession.nom }}</td>
+                <td>{{ profession.description }}</td>
+                <td>
+                    {% if profession.photo %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ profession.photo) }}" alt="Photo" width="60"
+                        height="60" class="img-thumbnail">
+                    {% else %}
+                    <span class="text-muted">Aucune</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#editModal{{ profession.id }}">
+                        Modifier
+                    </button>
+                    <a href="{{ url_for('delete_profession', id=profession.id) }}" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Voulez-vous vraiment supprimer cette profession ?');">
+                        Supprimer
+                    </a>
+                </td>
+            </tr>
+
+            <!-- Modal de modification -->
+            <div class="modal fade" id="editModal{{ profession.id }}" tabindex="-1"
+                aria-labelledby="editModalLabel{{ profession.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form action="{{ url_for('update_profession', id=profession.id) }}" method="POST"
+                        enctype="multipart/form-data">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Modifier la profession</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-2">
+                                    <input type="text" name="nom" class="form-control" value="{{ profession.nom }}"
+                                        required>
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" name="description" class="form-control"
+                                        value="{{ profession.description }}" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label>Changer la photo :</label>
+                                    <input type="file" name="photo" class="form-control" accept="image/*">
+                                    {% if profession.photo %}
+                                    <small>Photo actuelle : {{ profession.photo }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Script de recherche dynamique -->
+<script>
+    document.getElementById('recherche').addEventListener('input', function () {
+        const filtre = this.value.toLowerCase();
+        const lignes = document.querySelectorAll('#tableProfessions tbody tr');
+        lignes.forEach(ligne => {
+            const texte = ligne.textContent.toLowerCase();
+            ligne.style.display = texte.includes(filtre) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

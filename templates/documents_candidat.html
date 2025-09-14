@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">📄 Documents de {{ candidat.nom }} {{ candidat.prenom }}</h3>
+
+    <div class="row">
+        {% for label, doc in {
+        "CV": candidat.cv,
+        "Carte d'électeur": candidat.carte_electeur
+        }.items() %}
+        <div class="col-md-6 mb-4">
+            <h6>{{ label }}</h6>
+            {% if doc %}
+            {% set ext = doc.split('.')[-1]|lower %}
+            {% if ext in ['pdf'] %}
+            <embed src="{{ url_for('static', filename='uploads/' ~ doc) }}" width="100%" height="400px"
+                type="application/pdf">
+            {% elif ext in ['jpg', 'jpeg', 'png'] %}
+            <img src="{{ url_for('static', filename='uploads/' ~ doc) }}" alt="{{ label }}" class="img-fluid">
+            {% else %}
+            <a href="{{ url_for('static', filename='uploads/' ~ doc) }}" target="_blank">Télécharger {{ label }}</a>
+            {% endif %}
+            {% else %}
+            <p class="text-muted fst-italic">Non fourni</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-4">
+        <a href="{{ url_for('telecharger_documents_candidat', candidat_id=candidat.id) }}" class="btn btn-success">
+            ⬇ Télécharger tous les documents en ZIP
+        </a>
+    </div>
+
+
+    <a href="{{ url_for('liste_candidats') }}" class="btn btn-secondary">⬅ Retour</a>
+</div>
+{% endblock %}
