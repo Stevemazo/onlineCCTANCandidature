@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Gestion d'infos sur l'établissement{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Gestion d'infos sur l'établissement</h3>
+
+{% if message %}
+<div class="alert alert-info">{{ message }}</div>
+{% endif %}
+
+<form method="post" action="{{ url_for('add_etablissement') }}" class="row g-2 mb-4">
+    <div class="col-md-6">
+        <input type="text" name="nom_etablissement" class="form-control" placeholder="Nom d'établissement" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="lieu" class="form-control" placeholder="Lieu d'établissement" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="adresse" class="form-control" placeholder="Adresse d'établissement" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="commune" class="form-control" placeholder="Commune d'établissement" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="province" class="form-control" placeholder="Province d'établissement" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="code" class="form-control" placeholder="Code d'établissement" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="annee_scolaire" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">Ajouter</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Nom d'établissement</th>
+            <th>Lieu d'implantation</th>
+            <th>Adresse</th>
+            <th>Commune</th>
+            <th>Province</th>
+            <th>Code</th>
+            <th>Année scolaire</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for etablissement in etablissements %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ etablissement.nom_etablissement }}</td>
+            <td>{{ etablissement.lieu }}</td>
+            <td>{{ etablissement.adresse }}</td>
+            <td>{{ etablissement.commune }}</td>
+            <td>{{ etablissement.province }}</td>
+            <td>{{ etablissement.code }}</td>
+            <td>{{ etablissement.annee_scolaire }}</td>
+            <td>
+                <a href="{{ url_for('edit_etablissement', id=etablissement.id) }}"
+                    class="btn btn-sm btn-warning">Modifier</a>
+                <a href="{{ url_for('delete_etablissement', id=etablissement.id) }}" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Voulez-vous vraiment supprimer...?')">Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

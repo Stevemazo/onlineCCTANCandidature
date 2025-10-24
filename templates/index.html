@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - {{ nom_etablissement }}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        body {
+            background: #f4f6f8;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            /* hauteur minimum = écran */
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+            /* occupe tout l’espace restant avant le footer */
+        }
+
+        /* Carrousel */
+        .carousel-item img {
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* Hover sur cartes */
+        .profession-card {
+            transition: transform 0.3s;
+        }
+
+        .profession-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ====== Header / Navigation ====== -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">{{ nom_etablissement }}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary text-dark" href="#" data-bs-toggle="modal"
+                            data-bs-target="#modalOffres">
+                            <i class="fas fa-briefcase"></i> Voir les offres
+                        </a>
+                    </li>
+                    {% if verification_actif %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary text-dark"
+                            href="{{ url_for('inscription_candidat') }}">
+                            <i class="fas fa-paper-plane"></i> Postuler maintenant
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <p>Les candidatures sont actuellement <strong>fermées</strong>.</p>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary text-dark" href="/login">
+                            <i class="fas fa-sign-in-alt"></i> Connexion
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <!-- ====== Carrousel des professions ====== -->
+        <div id="carouselProfessions" class="carousel slide mt-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for profession in professions %}
+                <div class="carousel-item {% if loop.index0 == 0 %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='uploads/' ~ profession.photo) }}" class="d-block w-100"
+                        alt="{{ profession.nom }}">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+                        <h5>{{ profession.nom }}</h5>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselProfessions"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselProfessions"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </main>
+
+    <!-- ====== Modal Offres ====== -->
+    <div class="modal fade" id="modalOffres" tabindex="-1" aria-labelledby="modalOffresLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalOffresLabel"><i class="fas fa-briefcase"></i> Offres d'emploi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {% for offre in offres %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card shadow-sm">
+                                <img src="{{ url_for('static', filename='uploads/' ~ (offre.photo or 'default_offre.png')) }}"
+                                    class="card-img-top" alt="{{ offre.nom }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ offre.nom }}</h5>
+                                    <p class="card-text">{{ offre.description[:100] }}...</p>
+                                    <a href="{{ url_for('inscription_candidat') }}" class="btn btn-success btn-sm">
+                                        Postuler Maintenant
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== Footer ====== -->
+    <footer class="bg-dark text-white text-center p-3 mt-auto">
+        &copy; {{ current_year }} {{ nom_etablissement }}. Tous droits réservés.
+    </footer>
+
+    <!-- Bootstrap JS et Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Auto-play carrousel avec boucle
+        var carousel = new bootstrap.Carousel('#carouselProfessions', {
+            interval: 4000,
+            ride: 'carousel',
+            wrap: true // boucle infinie
+        });
+    </script>
+
+</body>
+
+</html>

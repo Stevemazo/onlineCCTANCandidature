@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">📋 Liste des Candidats</h2>
+
+    <!-- Champ de recherche -->
+    <div class="mb-3">
+        <input type="text" id="recherche_candidat" class="form-control" placeholder="Rechercher un candidat...">
+    </div>
+
+    <table class="table table-bordered table-striped" id="tableCandidats">
+        <thead class="table-primary">
+            <tr>
+                <th>Photo</th>
+                <th>Nom</th>
+                <th>Postnom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Sexe</th>
+                <th>Téléphone</th>
+                <th>Offre</th>
+                <th>Profession</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in candidats %}
+            <tr>
+                <td>
+                    {% if c.photo %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ c.photo) }}" alt="Photo" width="80"
+                        class="img-thumbnail">
+                    {% else %}
+                    <span class="text-muted">Aucune</span>
+                    {% endif %}
+                </td>
+                <td>{{ c.nom }}</td>
+                <td>{{ c.postnom }}</td>
+                <td>{{ c.prenom }}</td>
+                <td>{{ c.email }}</td>
+                <td>{{ c.sexe }}</td>
+                <td>{{ c.telephone }}</td>
+                <td>{{ c.offre }}</td>
+                <td>{{ c.profession }}</td>
+                <td>
+                    <!-- Modifier -->
+                    <button type="button" class="btn btn-warning btn-sm btn-edit" data-id="{{ c.id }}"
+                        data-nom="{{ c.nom }}" data-postnom="{{ c.postnom }}" data-prenom="{{ c.prenom }}"
+                        data-email="{{ c.email }}" data-date_naissance="{{ c.date_naissance }}" data-sexe="{{ c.sexe }}"
+                        data-etat_civil="{{ c.etat_civil }}" data-nom_conjoint="{{ c.nom_conjoint or '' }}"
+                        data-adresse="{{ c.adresse }}" data-telephone="{{ c.telephone }}"
+                        data-allergies="{{ c.allergies or '' }}" data-offre_id="{{ c.offre_id }}"
+                        data-profession_id="{{ c.profession_id }}">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+
+                    <!-- Bouton Voir Documents -->
+                    <a href="{{ url_for('voir_documents_candidat', candidat_id=c.id) }}" class="btn btn-info btn-sm">
+                        <i class="fas fa-file-alt"></i> Documents
+                    </a>
+
+                    <!-- Supprimer -->
+                    <a href="{{ url_for('delete_candidat', id=c.id) }}" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Confirmer la suppression ?');">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Modifier Candidat -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form id="editForm" method="POST" enctype="multipart/form-data" class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark">Modifier Candidat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <input type="hidden" name="id" id="edit-id">
+                <div class="col-md-6">
+                    <label for="edit-nom" class="form-label">Nom</label>
+                    <input type="text" name="nom" id="edit-nom" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-postnom" class="form-label">Postnom</label>
+                    <input type="text" name="postnom" id="edit-postnom" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-prenom" class="form-label">Prénom</label>
+                    <input type="text" name="prenom" id="edit-prenom" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-email" class="form-label">Email</label>
+                    <input type="email" name="email" id="edit-email" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-date_naissance" class="form-label">Date de naissance</label>
+                    <input type="date" name="date_naissance" id="edit-date_naissance" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-sexe" class="form-label">Sexe</label>
+                    <select name="sexe" id="edit-sexe" class="form-select" required>
+                        <option value="">-- Choisir --</option>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-etat_civil" class="form-label">État civil</label>
+                    <select name="etat_civil" id="edit-etat_civil" class="form-select" required>
+                        <option value="">-- Choisir --</option>
+                        <option value="Célibataire">Célibataire</option>
+                        <option value="Marié(e)">Marié(e)</option>
+                        <option value="Divorcé(e)">Divorcé(e)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-nom_conjoint" class="form-label">Nom du conjoint</label>
+                    <input type="text" name="nom_conjoint" id="edit-nom_conjoint" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-adresse" class="form-label">Adresse</label>
+                    <input type="text" name="adresse" id="edit-adresse" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-telephone" class="form-label">Téléphone</label>
+                    <input type="text" name="telephone" id="edit-telephone" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-allergies" class="form-label">Allergies</label>
+                    <input type="text" name="allergies" id="edit-allergies" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-offre_id" class="form-label">Offre</label>
+                    <select name="offre_id" id="edit-offre_id" class="form-select" required>
+                        {% for o in offres %}
+                        <option value="{{ o.id }}">{{ o.titre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-profession_id" class="form-label">Profession</label>
+                    <select name="profession_id" id="edit-profession_id" class="form-select" required>
+                        {% for p in professions %}
+                        <option value="{{ p.id }}">{{ p.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="edit-photo" class="form-label">Photo</label>
+                    <input type="file" name="photo" id="edit-photo" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Validation unique -->
+<div class="modal fade" id="validerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="validerForm" method="POST" class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="validerTitre"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Date d’interview</label>
+                    <input type="date" name="date_interview" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Heure d’interview</label>
+                    <input type="time" name="heure_interview" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Valider et notifier</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- jQuery pour remplir la modale -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $('.btn-edit').on('click', function () {
+        let c = $(this).data();
+        $('#editForm').attr('action', '/modifier_candidat/' + c.id);
+        $('#edit-id').val(c.id);
+        $('#edit-nom').val(c.nom);
+        $('#edit-postnom').val(c.postnom);
+        $('#edit-prenom').val(c.prenom);
+        $('#edit-email').val(c.email);
+        $('#edit-date_naissance').val(c.date_naissance);
+        $('#edit-sexe').val(c.sexe);
+        $('#edit-etat_civil').val(c.etat_civil);
+        $('#edit-nom_conjoint').val(c.nom_conjoint);
+        $('#edit-adresse').val(c.adresse);
+        $('#edit-telephone').val(c.telephone);
+        $('#edit-allergies').val(c.allergies);
+        $('#edit-offre_id').val(c.offre_id);
+        $('#edit-profession_id').val(c.profession_id);
+
+        $('#editModal').modal('show');
+    });
+
+
+    document.querySelectorAll('.btn-validate').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const nom = this.dataset.nom;
+            const prenom = this.dataset.prenom;
+
+            document.getElementById('validerTitre').textContent =
+                "Valider la candidature de " + nom + " " + prenom;
+
+            document.getElementById('validerForm').action =
+                "/valider_candidature/" + id;
+        });
+    });
+
+</script>
+
+<!-- Recherche dynamique -->
+<script>
+    document.getElementById('recherche_candidat').addEventListener('input', function () {
+        const filtre = this.value.toLowerCase();
+        const lignes = document.querySelectorAll('#tableCandidats tbody tr');
+        lignes.forEach(l => {
+            l.style.display = l.textContent.toLowerCase().includes(filtre) ? '' : 'none';
+        });
+    });
+</script>
+
+{% endblock %}

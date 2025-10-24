@@ -1,0 +1,24 @@
+# Ignorer les fichiers Python temporaires
+__pycache__/
+*.pyc
+
+# Ignorer les fichiers d’environnement
+.env
+venv/
+env/
+
+# Ignorer les fichiers uploadés
+static/uploads/
+
+# Ignorer les fichiers de log ou base de données locale
+*.db
+*.sqlite3
+
+# Ignorer les fichiers de configuration personnelle
+*.bak
+*.log
+
+# Ignorer les exécutables et installateurs
+*.exe
+*.msi
+*.iss

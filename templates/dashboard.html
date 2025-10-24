@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+        <div class="col-md-10">
+                <div class="card shadow mb-4">
+                        <div class="card-body">
+                                <h2 class="card-title">
+                                        <i class="bi bi-speedometer2"></i> Bienvenue, {{ session['user_nom'] }} !
+                                </h2>
+                                <p class="card-text">Vous êtes connecté en tant que <strong>{{ session['user_role']
+                                                }}</strong>.</p>
+
+                                <div id="alerts" class="my-3">
+                                        <!-- Alerte dynamique ici -->
+                                </div>
+
+                                <h4 class="mt-4"><i class="bi bi-lightning-charge-fill"></i> Accès rapides</h4>
+                                <div class="list-group mb-4">
+                                        {% if session['user_role'] == 'admin' %}
+                                        <a href="{{ url_for('gestion_etablissement') }}"
+                                                class="list-group-item list-group-item-action">
+                                                <i class="bi bi-gear-fill"></i> Paramètres établissements
+                                        </a>
+                                        <a href="{{ url_for('manage_professions') }}"
+                                                class="list-group-item list-group-item-action">
+                                                <i class="bi bi-easel-fill"></i> Gestion des Professions
+                                        </a>
+                                        <a href="{{ url_for('manage_offres') }}"
+                                                class="list-group-item list-group-item-action">
+                                                <i class="bi bi-book-half"></i> Gestion des Offres
+                                        </a>
+                                        <a href="{{ url_for('liste_candidats') }}"
+                                                class="list-group-item list-group-item-action">
+                                                <i class="bi bi-diagram-3-fill"></i> Gestion des Candidats
+                                        </a>
+                                        <a href="{{ url_for('register') }}"
+                                                class="list-group-item list-group-item-action">
+                                                <i class="bi bi-person-plus-fill"></i> Création Compte Utilisateur
+                                        </a>
+                                        {% endif %}
+
+                                </div>
+                                {% if session['user_role'] == 'admin' %}
+                                <h4 class="mt-4 mb-3"><i class="bi bi-envelope-fill"></i> Section d'activation d'options
+                                        des candidatures</h4>
+                                <div class="list-group mb-4">
+                                        <h5>Activer ou désactiver "Les candidatures"</h5>
+                                        <form method="POST" action="{{ url_for('dashboard') }}">
+                                                <div class="form-check form-switch mt-3">
+                                                        <input class="form-check-input" type="checkbox"
+                                                                name="verification_actif" id="verification_actif"
+                                                                {{ 'checked' if verification_actif else '' }}>
+                                                        <label class="form-check-label"
+                                                                for="verification_actif">Activation des
+                                                                candidatures</label>
+                                                </div>
+                                                <button type="submit" class="btn btn-success mt-2">Enregistrer</button>
+                                        </form>
+                                </div>
+
+                                {% endif %}
+                        </div>
+                </div>
+        </div>
+</div>
+{% endblock %}

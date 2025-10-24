@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Inscription d'un Candidat</h2>
+
+    <!-- Messages Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('inscription_candidat') }}" method="POST" enctype="multipart/form-data">
+        <div class="row g-3">
+
+            <!-- Informations personnelles -->
+            <div class="col-md-4">
+                <label for="nom" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="nom" name="nom" required>
+            </div>
+            <div class="col-md-4">
+                <label for="postnom" class="form-label">Postnom</label>
+                <input type="text" class="form-control" id="postnom" name="postnom" required>
+            </div>
+            <div class="col-md-4">
+                <label for="prenom" class="form-label">Prénom</label>
+                <input type="text" class="form-control" id="prenom" name="prenom" required>
+            </div>
+
+            <div class="col-md-6 mt-3">
+                <label>Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="col-md-4">
+                <label for="date_naissance" class="form-label">Date de naissance</label>
+                <input type="date" class="form-control" id="date_naissance" name="date_naissance" required>
+            </div>
+            <div class="col-md-4">
+                <label for="sexe" class="form-label">Sexe</label>
+                <select class="form-select" id="sexe" name="sexe" required>
+                    <option value="">Sélectionner...</option>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label for="etat_civil" class="form-label">État civil</label>
+                <select class="form-select" id="etat_civil" name="etat_civil" required>
+                    <option value="">Sélectionner...</option>
+                    <option value="Célibataire">Célibataire</option>
+                    <option value="Marié(e)">Marié(e)</option>
+                    <option value="Divorcé(e)">Divorcé(e)</option>
+                    <option value="Veuf(ve)">Veuf(ve)</option>
+                </select>
+            </div>
+            <div class="col-md-6 mt-3" id="conjoint_field" style="display: none;">
+                <label>Nom du conjoint</label>
+                <input type="text" class="form-control" name="nom_conjoint" id="nom_conjoint">
+            </div>
+
+            <div class="col-md-4">
+                <label for="adresse" class="form-label">Adresse</label>
+                <input type="text" class="form-control" id="adresse" name="adresse" required>
+            </div>
+            <div class="col-md-4">
+                <label for="telephone" class="form-label">Téléphone</label>
+                <input type="tel" class="form-control" id="telephone" name="telephone" required>
+            </div>
+            <div class="col-md-4">
+                <label for="allergies" class="form-label">Allergies</label>
+                <input type="text" class="form-control" id="allergies" name="allergies" placeholder="Si applicable">
+            </div>
+
+            <!-- Choix de l'offre et profession -->
+            <div class="col-md-6">
+                <label for="offre_id" class="form-label">Offre</label>
+                <select class="form-select" id="offre_id" name="offre_id" required>
+                    <option value="">Sélectionner une offre...</option>
+                    {% for offre in offres %}
+                    <option value="{{ offre.id }}" data-profession-id="{{ offre.profession_id }}">
+                        {{ offre.titre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6" style="display: none;">
+                <label for="profession_id" class="form-label">Profession</label>
+                <select class="form-select" id="profession_id" name="profession_id" required>
+                    {% for prof in professions %}
+                    <option value="{{ prof.id }}">{{ prof.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Upload fichiers -->
+            <div class="col-md-4">
+                <label for="photo" class="form-label">Photo</label>
+                <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required>
+            </div>
+            <div class="col-md-4">
+                <label for="carte_electeur" class="form-label">Carte d'électeur</label>
+                <input type="file" class="form-control" id="carte_electeur" name="carte_electeur"
+                    accept=".pdf,.jpg,.png" required>
+            </div>
+            <div class="col-md-4">
+                <label for="cv" class="form-label">CV</label>
+                <input type="file" class="form-control" id="cv" name="cv" accept=".pdf,.doc,.docx" required>
+            </div>
+
+            <!-- Bouton -->
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn btn-primary btn-lg">S'inscrire</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- jQuery pour animation légère -->
+<script>
+    $(document).ready(function () {
+        // Animation au focus
+        $('input, select').focus(function () {
+            $(this).closest('.col-md-4, .col-md-6').addClass('border border-primary rounded p-1');
+        }).blur(function () {
+            $(this).closest('.col-md-4, .col-md-6').removeClass('border border-primary rounded p-1');
+        });
+    });
+
+    $(document).ready(function () {
+        $('#etat_civil').change(function () {
+            if ($(this).val() === 'Marié(e)') {
+                $('#conjoint_field').show();
+            } else {
+                $('#conjoint_field').hide();
+            }
+        });
+
+    });
+
+
+    $(document).ready(function () {
+        // Lorsqu'on choisit une offre
+        $('#offre_id').change(function () {
+            let professionId = $(this).find(':selected').data('profession-id');
+            if (professionId) {
+                $('#profession_id').val(professionId); // sélection auto
+            } else {
+                $('#profession_id').val(""); // reset si aucune offre choisie
+            }
+        });
+    });
+
+</script>
+
+{% endblock %}
